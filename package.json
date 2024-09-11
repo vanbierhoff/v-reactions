@@ -7,6 +7,8 @@
     "test": "nx test"
   },
   "dependencies": {
+    "@v/stack-runner": "^0.0.1",
+    "rxjs": "^7.8.1",
     "tslib": "^2.3.0"
   },
   "devDependencies": {
