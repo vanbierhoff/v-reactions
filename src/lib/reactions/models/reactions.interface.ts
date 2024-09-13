@@ -5,6 +5,7 @@ export type ReactorFn<T> = (() => T);
 
 export interface XReactor<T> extends ReactorFn<T> {
     set(v: T): void;
+    destroy(): void;
 
 }
 
