@@ -1,13 +1,14 @@
 {
   "name": "@v-reactions/source",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "license": "MIT",
   "scripts": {
     "build": "nx build",
-    "test": "nx test"
+    "test": "nx test",
+    "publish:lib": "cd dist/v-reactions && npm publish"
   },
   "dependencies": {
-    "@v/stack-runner": "^0.0.1",
+    "@v/stack-runner": "^0.0.2",
     "rxjs": "^7.8.1",
     "tslib": "^2.3.0"
   },
