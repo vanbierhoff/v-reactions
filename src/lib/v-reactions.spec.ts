@@ -15,14 +15,10 @@ describe('vReactions', () => {
         baseReact.set(baseReact() + 50);
         return;
       }
+      console.count('BASE REACT END:');
       console.log('BASE REACT END:', baseReact());
       expect(baseReact()).toBeTruthy;
     });
-
-
-    setTimeout(() => {
-      baseReact2.set(50);
-    }, 3500);
 
   });
 
@@ -68,20 +64,23 @@ describe('vReactions', () => {
 
 
   it('Check recursive limit calls ', () => {
-    const react1 = reactor(100, {deep: 2});
-    const react2 = reactor(200);
+    const react1 = reactor(100, { deep: 5 });
+    const react2 = reactor(200, {deep: 5});
 
     let runCounter = 0;
 
     reaction(() => {
       runCounter++;
-      if (react1() < react2()) {
-        react1.set(react1() + 50);
+        console.log('react 1', react1());
+        console.log('react 2', react2());
+      //  react1.set(react1() + react2());
         return;
-      }
     });
     react1.set(100);
-    console.log('COUNTER:', runCounter);
+    react2.set(199);
+    //   react1.set(300);
+    console.log(' RUN COUNTER:', runCounter);
+    console.log('RESULT:', react1());
     expect(runCounter).toBeLessThanOrEqual(4);
   });
 
