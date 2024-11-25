@@ -32,6 +32,7 @@ export const reactor = <T>(v: T, options?: ReactorOptionsInterface): XReactor<T>
     return value;
   };
   reactorFn.set = (v: T) => {
+    STACK_ITEM().stop();
     value = v;
     state.reactionsList.forEach((context) => {
 
@@ -48,6 +49,7 @@ export const reactor = <T>(v: T, options?: ReactorOptionsInterface): XReactor<T>
         task = STACK_ITEM().add(context.cbFn);
       }
     });
+    STACK_ITEM().run();
   };
 
   reactorFn.destroy = () => {
