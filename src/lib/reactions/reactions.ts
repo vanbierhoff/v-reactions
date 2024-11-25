@@ -1,6 +1,6 @@
 import { ReactionFnInterface } from '../models/reaction-fn.interface';
 import { GlobalReactorInterface, ReactorStateInterface, XReactor } from './models/reactions.interface';
-import { BaseScheduler, Stack } from '@v/stack-runner';
+import { BaseScheduler, Stack, TaskInterface } from '@v/stack-runner';
 import { ReactorOptionsInterface } from './models/reactor-options.interface';
 import { STACK_ITEM } from '../models/reaction-parameters';
 
@@ -14,6 +14,7 @@ const stack: Stack = new Stack(runner, true);
 
 export const reactor = <T>(v: T, options?: ReactorOptionsInterface): XReactor<T> => {
   let value = v;
+  let task: TaskInterface | null = null;
   const state: ReactorStateInterface = {
     reactionsList: []
   };
@@ -37,10 +38,14 @@ export const reactor = <T>(v: T, options?: ReactorOptionsInterface): XReactor<T>
       if (context.isRunning) {
         return;
       }
+      if (task) {
+        context.deep = 0;
+        STACK_ITEM().remove(task);
+      }
       context.deep = context.deep + 1;
       // check recursive call limit
       if (context.deep <= (options?.deep || 100)) {
-        STACK_ITEM().add(context.cbFn);
+        task = STACK_ITEM().add(context.cbFn);
       }
     });
   };
