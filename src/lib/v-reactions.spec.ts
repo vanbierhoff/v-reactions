@@ -64,8 +64,8 @@ describe('vReactions', () => {
 
 
   it('Check recursive limit calls ', () => {
-    const react1 = reactor(100, { deep: 5 });
-    const react2 = reactor(200, {deep: 5});
+    const react1 = reactor(100, { deep: 10 });
+    const react2 = reactor(200, {deep: 10});
 
     let runCounter = 0;
 
@@ -73,15 +73,16 @@ describe('vReactions', () => {
       runCounter++;
         console.log('react 1', react1());
         console.log('react 2', react2());
-      //  react1.set(react1() + react2());
+       react1.set(react1() + react2());
         return;
     });
     react1.set(100);
     react2.set(199);
     //   react1.set(300);
     console.log(' RUN COUNTER:', runCounter);
-    console.log('RESULT:', react1());
-    expect(runCounter).toBeLessThanOrEqual(4);
+    console.log('RESULT:', react2());
+    console.log('RESULT REACT 1:', react1());
+    expect(runCounter).toBeLessThanOrEqual(12);
   });
 
 

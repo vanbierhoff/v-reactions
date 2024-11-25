@@ -12,7 +12,6 @@ export interface XReactor<T> extends ReactorFn<T> {
 export interface GlobalReactorInterface {
     cbFn: ReactionFnInterface;
     isRunning?: boolean;
-    linkedReactions?: Array<GlobalReactorInterface>;
     deep?: number;
 }
 

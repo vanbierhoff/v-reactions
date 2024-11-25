@@ -1,21 +1,19 @@
 import { ReactionFnInterface } from '../models/reaction-fn.interface';
 import { GlobalReactorInterface, ReactorStateInterface, XReactor } from './models/reactions.interface';
-import { TaskInterface } from '@v/stack-runner';
+import { BaseScheduler, Stack } from '@v/stack-runner';
 import { ReactorOptionsInterface } from './models/reactor-options.interface';
-import { detectChanges } from '../change-detector/change-detector';
-import { getStack } from '../models/reaction-parameters';
+import { STACK_ITEM } from '../models/reaction-parameters';
 
 
 
 
 let globalReactorEffect: GlobalReactorInterface | null = { cbFn: null };
 
-// const runner = new BaseScheduler('sync');
-// const stack: Stack = new Stack(runner, true);
+const runner = new BaseScheduler('sync');
+const stack: Stack = new Stack(runner, true);
 
 export const reactor = <T>(v: T, options?: ReactorOptionsInterface): XReactor<T> => {
   let value = v;
-  let taskItem: TaskInterface | null = null;
   const state: ReactorStateInterface = {
     reactionsList: []
   };
@@ -23,6 +21,7 @@ export const reactor = <T>(v: T, options?: ReactorOptionsInterface): XReactor<T>
 
   const reactorFn = () => {
     // add reaction if not exist equal item in reactionsList
+
     if (globalReactorEffect &&
       !state.reactionsList.some(reaction =>
         reaction.cbFn === globalReactorEffect?.cbFn)) {
@@ -32,10 +31,6 @@ export const reactor = <T>(v: T, options?: ReactorOptionsInterface): XReactor<T>
     return value;
   };
   reactorFn.set = (v: T) => {
-    const isChanged = detectChanges(value, v);
-    if (!isChanged) {
-      return;
-    }
     value = v;
     state.reactionsList.forEach((context) => {
 
@@ -43,22 +38,10 @@ export const reactor = <T>(v: T, options?: ReactorOptionsInterface): XReactor<T>
         return;
       }
       context.deep = context.deep + 1;
-
-      if (taskItem) {
-        context.deep = 0;
-        getStack().remove(taskItem);
-        taskItem = null;
-      }
-
       // check recursive call limit
       if (context.deep <= (options?.deep || 100)) {
-        taskItem = getStack().add(context.cbFn, () => {
-          if (taskItem) {
-            taskItem = null;
-          }
-        });
+        STACK_ITEM().add(context.cbFn);
       }
-
     });
   };
 
@@ -75,7 +58,7 @@ export const reaction = (fn: ReactionFnInterface): void => {
     let globalReactor: GlobalReactorInterface | null = { cbFn: fn, isRunning: false, deep: 0 };
     globalReactorEffect = globalReactor;
     globalReactor.isRunning = true;
-    getStack().add(fn);
+    STACK_ITEM().add(fn);
     globalReactor.isRunning = false;
     globalReactorEffect = null;
     globalReactor = null;

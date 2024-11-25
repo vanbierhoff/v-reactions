@@ -4,13 +4,21 @@ import { BrowserSchedulerStrategyType } from '@v/stack-runner/src/lib/scheduler/
 
 
 export const REACTION_RUNNER = (type: BrowserSchedulerStrategyType) => new BaseScheduler(type);
+
 export const STACK = () => {
-  if (typeof REACTION_RUNNER === 'function') {
-    return new Stack(REACTION_RUNNER('sync'), true);
+  let stack: Stack;
+  if (stack) {
+    return stack;
   }
-  return new Stack(REACTION_RUNNER, true);
+  if (typeof REACTION_RUNNER === 'function') {
+    stack = new Stack(REACTION_RUNNER('sync'), true);
+    return stack;
+  }
+  stack = new Stack(REACTION_RUNNER, true);
+  return stack;
 };
-export const getStack = () => {
+
+export const STACK_ITEM = () => {
   if (typeof STACK === 'function') {
     return STACK();
   }
