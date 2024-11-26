@@ -28,6 +28,7 @@ export const plannedUpdateCreate = () => {
     }
     context.planned = true;
     taskLen = context.nextUpdateReactions.length;
+    console.log('plannedUpdateCreate', context);
     context.nextUpdateReactions.forEach((item, i) => {
       stackItem.add(item.fn, () => {
         if (taskLen === i+1) {
