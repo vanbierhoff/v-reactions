@@ -6,18 +6,18 @@ import {
 
 
 
-export const isWaitUpdate = (context: GlobalReactorInterface, fn: UnionReactionFnInterface) => {
-  return context.nextUpdateReactions.includes(fn);
+export const isWaitUpdate = (context: GlobalReactorInterface, id: number, fn: UnionReactionFnInterface) => {
+  return context.nextUpdateReactions.some(item => item.id === id);
 };
 
 
-export const pushToWaitedUpdate = (context: GlobalReactorInterface, fn: UnionReactionFnInterface) => {
-  context.nextUpdateReactions.push(fn);
+export const pushToWaitedUpdate = (context: GlobalReactorInterface, id: number, fn: UnionReactionFnInterface) => {
+  context.nextUpdateReactions.push({ id, fn });
 };
 
-export const removeToWaitedUpdate = (context: GlobalReactorInterface, fn: UnionReactionFnInterface) => {
+export const removeToWaitedUpdate = (context: GlobalReactorInterface, id: number, fn: UnionReactionFnInterface) => {
   context.nextUpdateReactions = context.nextUpdateReactions
-    .filter(item => item !== fn);
+    .filter(item => item.id !== id);
 };
 
 const plannedUpdateCreate = () => {
@@ -27,9 +27,9 @@ const plannedUpdateCreate = () => {
       return;
     }
     context.planned = true;
-    context.nextUpdateReactions.forEach((fn) => {
+    context.nextUpdateReactions.forEach((item) => {
       plannedCounter += 1;
-      stackItem.add(fn, () => {
+      stackItem.add(item.fn, () => {
         plannedCounter -= 1;
         if (plannedCounter === 0) {
           context.planned = false;

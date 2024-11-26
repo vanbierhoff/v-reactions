@@ -1,4 +1,4 @@
-import { ReactionFnInterface } from '../../models/reaction-fn.interface';
+import { ReactionFnInterface, UnionReactionFnInterface } from '../../models/reaction-fn.interface';
 
 
 export type ReactorFn<T> = (() => T);
@@ -12,10 +12,14 @@ export interface XReactor<T> extends ReactorFn<T> {
 
 export interface GlobalReactorInterface {
   cbFn: ReactionFnInterface;
+  cbId: number;
   isRunning?: boolean;
   deep?: number;
   planned: boolean;
-  nextUpdateReactions?: Array<any>;
+  nextUpdateReactions?: Array<{
+    fn: UnionReactionFnInterface,
+    id: number
+  }>;
 }
 
 export interface ReactorStateInterface {

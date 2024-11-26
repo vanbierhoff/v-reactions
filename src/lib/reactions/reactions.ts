@@ -2,7 +2,7 @@ import { ReactionFnInterface } from '../models/reaction-fn.interface';
 import { GlobalReactorInterface, ReactorStateInterface, XReactor } from './models/reactions.interface';
 import { TaskInterface } from '@v/stack-runner';
 import { ReactorOptionsInterface } from './models/reactor-options.interface';
-import { isWaitUpdate, pushToWaitedUpdate, removeToWaitedUpdate, toPlannedUpdate } from './manager-task';
+import { isWaitUpdate, pushToWaitedUpdate, toPlannedUpdate } from './manager-task';
 
 
 export interface ReactionModel<T> {
@@ -15,13 +15,14 @@ export interface ReactionModel<T> {
 
 let globalReactorEffect: GlobalReactorInterface | null = {
   cbFn: null,
+  cbId: 0,
   nextUpdateReactions: [],
   planned: false
 };
 
 export const reactor = <T>(v: T, options?: ReactorOptionsInterface): XReactor<T> => {
 
-  const reaction: ReactionModel<T> = {
+  let reaction: ReactionModel<T> = {
     value: v,
     setTask: null,
     state: {
@@ -43,19 +44,16 @@ export const reactor = <T>(v: T, options?: ReactorOptionsInterface): XReactor<T>
   reactorFn.set = (v: T) => {
     reaction.value = v;
     reaction.state.reactionsList.forEach((context) => {
+      // restrict set value during run effect / computed
       if (context.isRunning) {
         return;
       }
 
-      if (reaction.setTask) {
-        context.deep = 0;
-        removeToWaitedUpdate(context, context.cbFn);
-      }
-
       context.deep = context.deep + 1;
       // check recursive call limit
-      if (!isWaitUpdate(context, context.cbFn) && context.deep <= (options?.deep || 100)) {
-        pushToWaitedUpdate(context, context.cbFn);
+      if (!isWaitUpdate(context, context.cbId, context.cbFn) &&
+        context.deep <= (options?.deep || 100)) {
+        pushToWaitedUpdate(context, context.cbId, context.cbFn);
       }
       toPlannedUpdate(context);
     });
@@ -64,6 +62,7 @@ export const reactor = <T>(v: T, options?: ReactorOptionsInterface): XReactor<T>
 
   reactorFn.destroy = () => {
     reaction.state.reactionsList = [];
+    reaction = undefined as any;
   };
 
   return reactorFn as XReactor<T>;
@@ -71,9 +70,13 @@ export const reactor = <T>(v: T, options?: ReactorOptionsInterface): XReactor<T>
 
 
 export const reaction = (fn: ReactionFnInterface): void => {
+  let idFn = 0;
   const reactionFn = () => {
+    idFn += 1;
+
     let globalReactor: GlobalReactorInterface | null = {
       cbFn: fn,
+      cbId: idFn,
       isRunning: false, deep: 0,
       nextUpdateReactions: [],
       planned: false
@@ -84,7 +87,6 @@ export const reaction = (fn: ReactionFnInterface): void => {
     globalReactor.isRunning = false;
     globalReactorEffect = null;
     globalReactor = null;
-
   };
   return reactionFn();
 };
