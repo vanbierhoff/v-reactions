@@ -31,7 +31,10 @@ export const plannedUpdateCreate = () => {
         item.fn();
       });
     };
-    stackItem.add(task, () => context.planned = false);
+    stackItem.add(task, () => {
+      context.planned = false;
+      context.nextUpdateReactions = [];
+    });
 
   };
 };
