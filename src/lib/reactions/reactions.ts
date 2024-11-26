@@ -4,6 +4,8 @@ import { TaskInterface } from '@v/stack-runner';
 import { ReactorOptionsInterface } from './models/reactor-options.interface';
 import { isWaitUpdate, pushToWaitedUpdate, toPlannedUpdate } from './manager-task';
 
+let idFn = 0;
+
 
 export interface ReactionModel<T> {
   value: T;
@@ -40,7 +42,7 @@ export const reactor = <T>(v: T, options?: ReactorOptionsInterface): XReactor<T>
   };
   reactorFn.set = (v: T) => {
     reaction.value = v;
-    console.log(reaction.state.reactionsList);
+    
     reaction.state.reactionsList.forEach((context) => {
       // restrict set value during run effect / computed
       if (context.isRunning) {
@@ -68,7 +70,7 @@ export const reactor = <T>(v: T, options?: ReactorOptionsInterface): XReactor<T>
 
 
 export const reaction = (fn: ReactionFnInterface): void => {
-  let idFn = 0;
+
   const reactionFn = () => {
     idFn += 1;
 
