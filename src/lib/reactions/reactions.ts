@@ -34,7 +34,7 @@ export const reactor = <T>(v: T, options?: ReactorOptionsInterface): XReactor<T>
 
 
   const reactorFn = () => {
-    if (globalReactorEffect) {
+    if (globalReactorEffect && !reaction.state.reactionsList.some(item => item.cbId === globalReactorEffect.cbId)) {
       reaction.state.reactionsList.push(globalReactorEffect);
     }
 
