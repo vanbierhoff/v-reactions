@@ -32,6 +32,7 @@ export const plannedUpdateCreate = () => {
       stackItem.add(item.fn, () => {
         if (taskLen === i+1) {
           context.planned = false;
+          context.nextUpdateReactions = [];
         }
       });
     });
