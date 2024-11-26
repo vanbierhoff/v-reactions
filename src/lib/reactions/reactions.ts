@@ -1,6 +1,6 @@
 import { ReactionFnInterface } from '../models/reaction-fn.interface';
 import { GlobalReactorInterface, ReactorStateInterface, XReactor } from './models/reactions.interface';
-import { BaseScheduler, Stack, TaskInterface } from '@v/stack-runner';
+import { TaskInterface } from '@v/stack-runner';
 import { ReactorOptionsInterface } from './models/reactor-options.interface';
 import { isWaitUpdate, pushToWaitedUpdate, removeToWaitedUpdate, toPlannedUpdate } from './manager-task';
 
@@ -80,7 +80,7 @@ export const reaction = (fn: ReactionFnInterface): void => {
     };
     globalReactorEffect = globalReactor;
     globalReactor.isRunning = true;
-    fn()
+    fn();
     globalReactor.isRunning = false;
     globalReactorEffect = null;
     globalReactor = null;
