@@ -32,10 +32,7 @@ export const reactor = <T>(v: T, options?: ReactorOptionsInterface): XReactor<T>
 
 
   const reactorFn = () => {
-    // add reaction if not exist equal item in reactionsList
-    if (globalReactorEffect &&
-      !reaction.state.reactionsList.some(reaction =>
-        reaction.cbFn === globalReactorEffect?.cbFn)) {
+    if (globalReactorEffect) {
       reaction.state.reactionsList.push(globalReactorEffect);
     }
 
@@ -43,6 +40,7 @@ export const reactor = <T>(v: T, options?: ReactorOptionsInterface): XReactor<T>
   };
   reactorFn.set = (v: T) => {
     reaction.value = v;
+    console.log(reaction.state.reactionsList);
     reaction.state.reactionsList.forEach((context) => {
       // restrict set value during run effect / computed
       if (context.isRunning) {
