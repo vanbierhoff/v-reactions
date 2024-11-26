@@ -2,7 +2,6 @@ import { ReactionFnInterface } from '../models/reaction-fn.interface';
 import { GlobalReactorInterface, ReactorStateInterface, XReactor } from './models/reactions.interface';
 import { BaseScheduler, Stack, TaskInterface } from '@v/stack-runner';
 import { ReactorOptionsInterface } from './models/reactor-options.interface';
-import { STACK_ITEM } from '../models/reaction-parameters';
 import { isWaitUpdate, pushToWaitedUpdate, removeToWaitedUpdate, toPlannedUpdate } from './manager-task';
 
 
@@ -19,9 +18,6 @@ let globalReactorEffect: GlobalReactorInterface | null = {
   nextUpdateReactions: [],
   planned: false
 };
-
-const runner = new BaseScheduler('sync');
-const stack: Stack = new Stack(runner, true);
 
 export const reactor = <T>(v: T, options?: ReactorOptionsInterface): XReactor<T> => {
 

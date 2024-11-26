@@ -1,6 +1,6 @@
 import {
   GlobalReactorInterface,
-  STACK_ITEM,
+  stackItem,
   UnionReactionFnInterface
 } from '@v-reactions/source';
 
@@ -27,10 +27,9 @@ const plannedUpdateCreate = () => {
       return;
     }
     context.planned = true;
-    const stack = STACK_ITEM();
     context.nextUpdateReactions.forEach((fn) => {
       plannedCounter += 1;
-      stack.add(fn, () => {
+      stackItem.add(fn, () => {
         plannedCounter -= 1;
         if (plannedCounter === 0) {
           context.planned = false;

@@ -1,8 +1,10 @@
 import { reaction, reactor } from './reactions/reactions';
 import { expect } from 'vitest';
+import { provideStackRunner } from '@v-reactions/source';
 
 
 describe('vReactions', () => {
+  provideStackRunner('sync');
   it('should work', () => {
 
     const baseReact = reactor(100);
@@ -65,16 +67,16 @@ describe('vReactions', () => {
 
   it('Check recursive limit calls ', () => {
     const react1 = reactor(100, { deep: 10 });
-    const react2 = reactor(200, {deep: 10});
+    const react2 = reactor(200, { deep: 10 });
 
     let runCounter = 0;
 
     reaction(() => {
       runCounter++;
-        console.log('react 1', react1());
-        console.log('react 2', react2());
-       react1.set(react1() + react2());
-        return;
+      console.log('react 1', react1());
+      console.log('react 2', react2());
+      react1.set(react1() + react2());
+      return;
     });
     react1.set(100);
     react1.set(105);
