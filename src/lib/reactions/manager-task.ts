@@ -20,7 +20,7 @@ export const removeToWaitedUpdate = (context: GlobalReactorInterface, id: number
     .filter(item => item.id !== id);
 };
 
-const plannedUpdateCreate = () => {
+export const plannedUpdateCreate = () => {
   let plannedCounter = 0;
   return (context: GlobalReactorInterface) => {
     if (context.planned) {

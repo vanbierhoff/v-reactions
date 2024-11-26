@@ -2,7 +2,7 @@ import { ReactionFnInterface } from '../models/reaction-fn.interface';
 import { GlobalReactorInterface, ReactorStateInterface, XReactor } from './models/reactions.interface';
 import { TaskInterface } from '@v/stack-runner';
 import { ReactorOptionsInterface } from './models/reactor-options.interface';
-import { isWaitUpdate, pushToWaitedUpdate, toPlannedUpdate } from './manager-task';
+import { isWaitUpdate, plannedUpdateCreate, pushToWaitedUpdate, toPlannedUpdate } from './manager-task';
 
 let idFn = 0;
 
@@ -55,7 +55,7 @@ export const reactor = <T>(v: T, options?: ReactorOptionsInterface): XReactor<T>
         context.deep <= (options?.deep || 100)) {
         pushToWaitedUpdate(context, context.cbId, context.cbFn);
       }
-      toPlannedUpdate(context);
+      plannedUpdateCreate()(context);
     });
 
   };
