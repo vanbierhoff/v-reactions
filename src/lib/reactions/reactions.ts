@@ -42,7 +42,7 @@ export const reactor = <T>(v: T, options?: ReactorOptionsInterface): XReactor<T>
   };
   reactorFn.set = (v: T) => {
     reaction.value = v;
-    
+
     reaction.state.reactionsList.forEach((context) => {
       // restrict set value during run effect / computed
       if (context.isRunning) {
