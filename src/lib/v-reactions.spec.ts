@@ -77,6 +77,7 @@ describe('vReactions', () => {
         return;
     });
     react1.set(100);
+    react1.set(105);
     react2.set(199);
     //   react1.set(300);
     console.log(' RUN COUNTER:', runCounter);

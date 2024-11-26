@@ -3,57 +3,71 @@ import { GlobalReactorInterface, ReactorStateInterface, XReactor } from './model
 import { BaseScheduler, Stack, TaskInterface } from '@v/stack-runner';
 import { ReactorOptionsInterface } from './models/reactor-options.interface';
 import { STACK_ITEM } from '../models/reaction-parameters';
+import { isWaitUpdate, pushToWaitedUpdate, removeToWaitedUpdate, toPlannedUpdate } from './manager-task';
 
 
+export interface ReactionModel<T> {
+  value: T;
+  setTask?: TaskInterface;
+  state: ReactorStateInterface;
+  context?: GlobalReactorInterface;
+}
 
 
-let globalReactorEffect: GlobalReactorInterface | null = { cbFn: null };
+let globalReactorEffect: GlobalReactorInterface | null = {
+  cbFn: null,
+  nextUpdateReactions: [],
+  planned: false
+};
 
 const runner = new BaseScheduler('sync');
 const stack: Stack = new Stack(runner, true);
 
 export const reactor = <T>(v: T, options?: ReactorOptionsInterface): XReactor<T> => {
-  let value = v;
-  let task: TaskInterface | null = null;
-  const state: ReactorStateInterface = {
-    reactionsList: []
+
+  const reaction: ReactionModel<T> = {
+    value: v,
+    setTask: null,
+    state: {
+      reactionsList: []
+    }
   };
 
 
   const reactorFn = () => {
     // add reaction if not exist equal item in reactionsList
-
     if (globalReactorEffect &&
-      !state.reactionsList.some(reaction =>
+      !reaction.state.reactionsList.some(reaction =>
         reaction.cbFn === globalReactorEffect?.cbFn)) {
-      state.reactionsList.push(globalReactorEffect);
+      reaction.state.reactionsList.push(globalReactorEffect);
     }
 
-    return value;
+    return reaction.value;
   };
   reactorFn.set = (v: T) => {
-    STACK_ITEM().stop();
-    value = v;
-    state.reactionsList.forEach((context) => {
-
+    reaction.value = v;
+    reaction.state.reactionsList.forEach((context) => {
       if (context.isRunning) {
         return;
       }
-      if (task) {
+
+      if (reaction.setTask) {
         context.deep = 0;
-        STACK_ITEM().remove(task);
+        removeToWaitedUpdate(context, context.cbFn);
       }
+
       context.deep = context.deep + 1;
       // check recursive call limit
-      if (context.deep <= (options?.deep || 100)) {
-        task = STACK_ITEM().add(context.cbFn);
+      if (!isWaitUpdate(context, context.cbFn) && context.deep <= (options?.deep || 100)) {
+        pushToWaitedUpdate(context, context.cbFn);
       }
+      toPlannedUpdate(context);
     });
-    STACK_ITEM().run();
+
   };
 
   reactorFn.destroy = () => {
-    state.reactionsList = [];
+    reaction.state.reactionsList = [];
   };
 
   return reactorFn as XReactor<T>;
@@ -62,10 +76,15 @@ export const reactor = <T>(v: T, options?: ReactorOptionsInterface): XReactor<T>
 
 export const reaction = (fn: ReactionFnInterface): void => {
   const reactionFn = () => {
-    let globalReactor: GlobalReactorInterface | null = { cbFn: fn, isRunning: false, deep: 0 };
+    let globalReactor: GlobalReactorInterface | null = {
+      cbFn: fn,
+      isRunning: false, deep: 0,
+      nextUpdateReactions: [],
+      planned: false
+    };
     globalReactorEffect = globalReactor;
     globalReactor.isRunning = true;
-    STACK_ITEM().add(fn);
+    fn()
     globalReactor.isRunning = false;
     globalReactorEffect = null;
     globalReactor = null;
