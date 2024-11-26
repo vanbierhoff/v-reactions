@@ -21,17 +21,16 @@ export const removeToWaitedUpdate = (context: GlobalReactorInterface, id: number
 };
 
 export const plannedUpdateCreate = () => {
-  let plannedCounter = 0;
+  let taskLen = 0;
   return (context: GlobalReactorInterface) => {
     if (context.planned) {
       return;
     }
     context.planned = true;
-    context.nextUpdateReactions.forEach((item) => {
-      plannedCounter += 1;
+    taskLen = context.nextUpdateReactions.length;
+    context.nextUpdateReactions.forEach((item, i) => {
       stackItem.add(item.fn, () => {
-        plannedCounter -= 1;
-        if (plannedCounter === 0) {
+        if (taskLen === i+1) {
           context.planned = false;
         }
       });

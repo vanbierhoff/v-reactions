@@ -55,7 +55,8 @@ export const reactor = <T>(v: T, options?: ReactorOptionsInterface): XReactor<T>
         context.deep <= (options?.deep || 100)) {
         pushToWaitedUpdate(context, context.cbId, context.cbFn);
       }
-      toPlannedUpdate(context);
+
+      plannedUpdateCreate()(context);
     });
 
   };
